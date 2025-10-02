@@ -1,41 +1,129 @@
 package cal.example.POCEmpleado.controller;
 
 import cal.example.POCEmpleado.model.Carro;
-import cal.example.POCEmpleado.service.CarroService;
+import cal.example.POCEmpleado.service.ICarroService;
 import cal.example.POCEmpleado.errors.ErrorMessage;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import jakarta.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Controlador REST para Carros - Siguiendo el patrón del EmpleadoController
+ * Controlador REST para Carros
+ * Implementa principios SOLID y arquitectura hexagonal
+ * DIP: Depende de la abstracción ICarroService, no de la implementación concreta
  */
 @RestController
-@RequestMapping("/carros")
+@RequestMapping("/api/carro")
 @CrossOrigin(origins = "*")
 public class CarroController {
 
+    private final ICarroService carroService;
+
+    // Inyección por constructor (mejor práctica)
     @Autowired
-    private CarroService carroService;
+    public CarroController(ICarroService carroService) {
+        this.carroService = carroService;
+    }
 
     @GetMapping(value = "/healthCheck")
     public String healthCheck() {
         return "Carros API Status Ok!";
     }
 
+    /**
+     * MÉTODO UNIFICADO - Listar carros con filtros opcionales
+     * Este es el ÚNICO método GET que maneja todas las consultas:
+     * - Sin parámetros: retorna todos los carros
+     * - Con placa: retorna un carro específico
+     * - Con otros filtros: retorna carros filtrados
+     * - Con action=estadisticas: retorna estadísticas
+     * - Con action=valor-comercial&placa=XXX: retorna valor comercial
+     */
+    @GetMapping
+    public ResponseEntity<?> listar(@RequestParam Map<String, String> params) {
+        try {
+            // Manejar acciones especiales
+            String action = params.get("action");
+            if ("estadisticas".equals(action)) {
+                return obtenerEstadisticas();
+            }
+            if ("valor-comercial".equals(action)) {
+                String placa = params.get("placa");
+                if (placa != null && !placa.trim().isEmpty()) {
+                    return calcularValorComercial(placa);
+                }
+                return ResponseEntity.badRequest().body("Placa requerida para calcular valor comercial");
+            }
+
+            // Convertir parámetros String a Object para el servicio
+            Map<String, Object> filtros = new HashMap<>();
+
+            for (Map.Entry<String, String> entry : params.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+
+                if (value != null && !value.trim().isEmpty() && !"action".equals(key)) {
+                    // Conversión de tipos según el parámetro
+                    switch (key.toLowerCase()) {
+                        case "anio":
+                            try {
+                                filtros.put(key, Integer.parseInt(value));
+                            } catch (NumberFormatException e) {
+                                return ResponseEntity.badRequest()
+                                    .body("Valor inválido para año: " + value);
+                            }
+                            break;
+                        case "precio_min":
+                        case "precio_max":
+                        case "precio":
+                            try {
+                                filtros.put(key, Double.parseDouble(value));
+                            } catch (NumberFormatException e) {
+                                return ResponseEntity.badRequest()
+                                    .body("Valor inválido para precio: " + value);
+                            }
+                            break;
+                        case "aire_acondicionado":
+                        case "tieneaireacondicicionado":
+                            filtros.put(key, Boolean.parseBoolean(value));
+                            break;
+                        case "numeropuertas":
+                        case "numero_puertas":
+                            try {
+                                filtros.put(key, Integer.parseInt(value));
+                            } catch (NumberFormatException e) {
+                                return ResponseEntity.badRequest()
+                                    .body("Valor inválido para número de puertas: " + value);
+                            }
+                            break;
+                        default:
+                            filtros.put(key, value);
+                    }
+                }
+            }
+
+            List<Carro> carros = carroService.listar(filtros);
+            return ResponseEntity.ok(carros);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Error interno del servidor: " + e.getMessage());
+        }
+    }
+
     // CREATE - Crear carro (POST)
-    @PostMapping(value = "/")
+    @PostMapping
     public ResponseEntity<?> crearCarro(@Valid @RequestBody Carro carro, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body(formatMessage(bindingResult));
@@ -50,23 +138,6 @@ public class CarroController {
         }
     }
 
-    // READ - Obtener todos los carros (GET)
-    @GetMapping(value = "/")
-    public ResponseEntity<List<Carro>> obtenerTodosLosCarros() {
-        List<Carro> carros = carroService.findAll();
-        return ResponseEntity.ok(carros);
-    }
-
-    // READ - Buscar carro por placa (GET)
-    @GetMapping(value = "/{placa}")
-    public ResponseEntity<Carro> obtenerCarroPorPlaca(@PathVariable("placa") String placa) {
-        Optional<Carro> carro = carroService.findByPlaca(placa);
-        if (carro.isPresent()) {
-            return ResponseEntity.ok(carro.get());
-        }
-        return ResponseEntity.notFound().build();
-    }
-
     // UPDATE - Actualizar carro (PUT)
     @PutMapping(value = "/{placa}")
     public ResponseEntity<?> actualizarCarro(@PathVariable("placa") String placa,
@@ -76,8 +147,12 @@ public class CarroController {
             return ResponseEntity.badRequest().body(formatMessage(bindingResult));
         }
 
-        Optional<Carro> carroExistente = carroService.findByPlaca(placa);
-        if (carroExistente.isEmpty()) {
+        // Buscar usando el método unificado
+        Map<String, Object> filtros = new HashMap<>();
+        filtros.put("placa", placa);
+        List<Carro> carrosEncontrados = carroService.listar(filtros);
+
+        if (carrosEncontrados.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
@@ -103,70 +178,50 @@ public class CarroController {
         }
     }
 
-    // Búsquedas adicionales
-    @GetMapping(value = "/buscar/marca/{marca}")
-    public ResponseEntity<List<Carro>> buscarPorMarca(@PathVariable("marca") String marca) {
-        List<Carro> carros = carroService.findByMarca(marca);
-        return ResponseEntity.ok(carros);
+    // Persistencia manual de JSON
+    @PostMapping(value = "/guardar-json")
+    public ResponseEntity<Map<String, String>> guardarEnJson() {
+        try {
+            carroService.saveToJson();
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Datos guardados en JSON exitosamente");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("error", "Error al guardar en JSON: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
 
-    @GetMapping(value = "/buscar/anio/{anio}")
-    public ResponseEntity<List<Carro>> buscarPorAnio(@PathVariable("anio") int anio) {
-        List<Carro> carros = carroService.findByAnio(anio);
-        return ResponseEntity.ok(carros);
-    }
-
-    @GetMapping(value = "/buscar/precio")
-    public ResponseEntity<List<Carro>> buscarPorPrecio(@RequestParam("min") double min,
-                                                       @RequestParam("max") double max) {
-        List<Carro> carros = carroService.findByPrecioRange(min, max);
-        return ResponseEntity.ok(carros);
-    }
-
-    // Estadísticas
-    @GetMapping(value = "/estadisticas")
-    public ResponseEntity<Map<String, Object>> obtenerEstadisticas() {
+    // Métodos auxiliares privados
+    private ResponseEntity<Map<String, Object>> obtenerEstadisticas() {
         Map<String, Object> stats = new HashMap<>();
-        stats.put("totalCarros", (Object) carroService.count());
-        stats.put("precioPromedio", (Object) carroService.getPrecioPromedio());
+        stats.put("totalCarros", carroService.count());
+        stats.put("precioPromedio", carroService.getPrecioPromedio());
         return ResponseEntity.ok(stats);
     }
 
-    // Valor comercial
-    @GetMapping(value = "/{placa}/valor-comercial")
-    public ResponseEntity<?> calcularValorComercial(@PathVariable("placa") String placa) {
-        Optional<Carro> carro = carroService.findByPlaca(placa);
-        if (carro.isPresent()) {
+    private ResponseEntity<?> calcularValorComercial(String placa) {
+        Map<String, Object> filtros = new HashMap<>();
+        filtros.put("placa", placa);
+        List<Carro> carros = carroService.listar(filtros);
+
+        if (!carros.isEmpty()) {
+            Carro carro = carros.get(0);
             Map<String, Object> response = new HashMap<>();
             response.put("placa", placa);
-            response.put("valorComercial", (Object) carro.get().calcularValorComercial());
+            response.put("valorComercial", carro.calcularValorComercial());
             return ResponseEntity.ok(response);
         }
         return ResponseEntity.notFound().build();
     }
 
-    // Método para formatear mensajes de error (igual que en EmpleadoController)
-    private String formatMessage(BindingResult result) {
-        List<Map<String, String>> errores = result.getFieldErrors().stream()
-                .map(err -> {
-                    Map<String, String> error = new HashMap<>();
-                    error.put(err.getField(), err.getDefaultMessage());
-                    return error;
-                }).collect(Collectors.toList());
-
-        ErrorMessage errorMessage = ErrorMessage.builder()
-                .code("VALIDATION_ERROR")
-                .mensajes(errores)
-                .build();
-
-        ObjectMapper mapper = new ObjectMapper();
-        String jsonString = "";
-        try {
-            jsonString = mapper.writeValueAsString(errorMessage);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-
-        return jsonString;
+    // Método para formatear mensajes de error
+    private Map<String, String> formatMessage(BindingResult result) {
+        Map<String, String> errors = new HashMap<>();
+        result.getFieldErrors().forEach(error -> {
+            errors.put(error.getField(), error.getDefaultMessage());
+        });
+        return errors;
     }
 }

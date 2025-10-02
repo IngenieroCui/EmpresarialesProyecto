@@ -1,6 +1,6 @@
-# React + TypeScript + Vite
+# 🚗 Sistema de Gestión de Carros - Cliente React
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Cliente React TypeScript que consume servicios REST de un microservicio Spring Boot para gestionar información de carros almacenados en una colección JSON en memoria.
 
 Currently, two official plugins are available:
 

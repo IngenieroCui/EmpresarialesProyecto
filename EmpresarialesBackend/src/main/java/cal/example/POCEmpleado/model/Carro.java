@@ -1,10 +1,12 @@
 package cal.example.POCEmpleado.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Carro extends Vehiculo {
 
     @NotNull(message = "El número de puertas es obligatorio")
