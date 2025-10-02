@@ -47,6 +47,406 @@
   margin-bottom: 2rem;
 }
 
+/* Filter Controls - Mejorados */
+.filter-form {
+  background: var(--white);
+  padding: 2rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--card-shadow);
+  margin-bottom: 2rem;
+}
+
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--light-gray);
+}
+
+.filter-header h3 {
+  margin: 0;
+  color: var(--primary-dark);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.active-filters {
+  margin-bottom: 2rem;
+}
+
+.active-filters h4 {
+  color: var(--primary-dark);
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.filter-tag {
+  background: linear-gradient(135deg, var(--primary-blue), #2980b9);
+  color: var(--white);
+  padding: 0.6rem 1.2rem;
+  border-radius: 25px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+
+.filter-tag:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+.remove-filter {
+  background: rgba(255, 255, 255, 0.3);
+  border: none;
+  color: var(--white);
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: var(--transition);
+  font-weight: bold;
+}
+
+.remove-filter:hover {
+  background: rgba(255, 255, 255, 0.5);
+  transform: scale(1.1);
+}
+
+.add-filter {
+  padding-top: 2rem;
+  border-top: 2px dashed var(--light-gray);
+}
+
+.add-filter h4 {
+  color: var(--primary-dark);
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.filter-input-group select {
+  padding: 1rem;
+  border: 2px solid var(--light-gray);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: var(--transition);
+  background: var(--white);
+  box-shadow: var(--shadow);
+  color: var(--dark-gray);
+}
+
+.filter-input-group select:focus {
+  outline: none;
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.15);
+  transform: translateY(-2px);
+}
+
+.filter-value-input {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.filter-value-input input,
+.filter-value-input select {
+  flex: 1;
+  padding: 1rem;
+  border: 2px solid var(--light-gray);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: var(--transition);
+  background: var(--white);
+  box-shadow: var(--shadow);
+  color: var(--dark-gray);
+}
+
+.filter-value-input input:focus,
+.filter-value-input select:focus {
+  outline: none;
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Date input styling */
+.filter-value-input input[type="date"] {
+  position: relative;
+  cursor: pointer;
+}
+
+.filter-value-input input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  background: var(--primary-blue);
+  color: white;
+}
+
+.filter-value-input input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  background: var(--primary-dark);
+}
+
+.btn-search {
+  background: linear-gradient(135deg, var(--primary-blue), #2980b9);
+  color: var(--white);
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: var(--shadow);
+}
+
+.btn-search:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-hover);
+}
+
+.btn-search:disabled {
+  background: var(--light-gray);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-clear {
+  background: linear-gradient(135deg, var(--warning-orange), #e67e22);
+  color: var(--white);
+  padding: 0.7rem 1.5rem;
+  border: none;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 0.9rem;
+  box-shadow: var(--shadow);
+}
+
+.btn-clear:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+/* Results Section */
+.results-section {
+  background: var(--white);
+  border-radius: var(--border-radius);
+  padding: 2rem;
+  box-shadow: var(--card-shadow);
+}
+
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--light-gray);
+}
+
+.results-header h3 {
+  margin: 0;
+  color: var(--primary-dark);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.results-count {
+  background: linear-gradient(135deg, var(--success-green), #27ae60);
+  color: var(--white);
+  padding: 0.6rem 1.2rem;
+  border-radius: 25px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: var(--shadow);
+}
+
+/* Car Actions */
+.car-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--light-gray);
+}
+
+.car-actions button {
+  flex: 1;
+  padding: 0.7rem 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.car-actions .btn-secondary {
+  background: linear-gradient(135deg, var(--primary-blue), #2980b9);
+  color: var(--white);
+}
+
+.car-actions .btn-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+.car-actions .btn-delete {
+  background: linear-gradient(135deg, var(--danger-red), #c0392b);
+  color: var(--white);
+}
+
+.car-actions .btn-delete:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+/* Car Info Grid - Mejorado */
+.car-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.info-item {
+  padding: 0.8rem;
+  background: linear-gradient(135deg, var(--light-gray), #e8eaed);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  transition: var(--transition);
+  border-left: 4px solid var(--primary-blue);
+}
+
+.info-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.info-item strong {
+  color: var(--primary-dark);
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+/* Car Header - Mejorado */
+.car-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--light-gray);
+}
+
+.car-header h4 {
+  margin: 0;
+  color: var(--primary-dark);
+  font-size: 1.2rem;
+}
+
+.car-id {
+  background: linear-gradient(135deg, var(--success-green), #27ae60);
+  color: var(--white);
+  padding: 0.4rem 0.8rem;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  box-shadow: var(--shadow);
+}
+
+/* Debug section */
+.debug-section {
+  margin-top: 3rem;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+}
+
+.debug-section summary {
+  cursor: pointer;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--primary-dark);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.debug-info {
+  margin: 1rem 0;
+}
+
+.debug-info h4 {
+  margin-bottom: 0.5rem;
+  color: var(--primary-dark);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.debug-info pre {
+  background: var(--white);
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--light-gray);
+  overflow-x: auto;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow);
+}
+
+/* Header Actions */
+.header-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.header-actions button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .filter-section h2 {
   margin-top: 0;
   margin-bottom: 1.5rem;

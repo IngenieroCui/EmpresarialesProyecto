@@ -2,11 +2,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'r
 import { useState, useEffect } from 'react';
 import CreateCarro from './pages/CreateCarro';
 import SearchListCarros from './pages/SearchListCarros';
-import SearchCarro from './pages/SearchCarro';
 import UpdateCarro from './pages/UpdateCarro';
 import DeleteCarro from './pages/DeleteCarro';
-import ActualizarCarroFormulario from './pages/ActualizarCarroFormulario';
-import EliminarCarroFormulario from './pages/EliminarCarroFormulario';
 import './App.css';
 
 // Home Page Component
@@ -56,54 +53,45 @@ const HomePage = () => {
           </ul>
         </section>
 
-        {/* Casos de Uso - Según Diagrama */}
+        {/* Acciones Rápidas */}
         <section className="actions-section">
-          <h3 className="section-title">🎯 Casos de Uso del Sistema</h3>
-          <div className="use-cases-grid">
-            <div className="use-case-group">
-              <h4 className="use-case-title">📝 Gestión de Objetos</h4>
-              <button 
-                className="action-btn btn-green"
-                onClick={() => navigate('/carros/create')}
-              >
-                <span className="btn-icon">➕</span>
-                Adicionar Objeto
-              </button>
-              <button 
-                className="action-btn btn-orange"
-                onClick={() => navigate('/actualizar')}
-              >
-                <span className="btn-icon">✏️</span>
-                Actualizar Objeto
-                <small>(Con búsqueda previa)</small>
-              </button>
-              <button 
-                className="action-btn btn-red"
-                onClick={() => navigate('/eliminar')}
-              >
-                <span className="btn-icon">🗑️</span>
-                Eliminar Objeto
-                <small>(Con búsqueda previa)</small>
-              </button>
-            </div>
-            
-            <div className="use-case-group">
-              <h4 className="use-case-title">🔍 Consultas</h4>
-              <button 
-                className="action-btn btn-blue"
-                onClick={() => navigate('/carros/list')}
-              >
-                <span className="btn-icon">📋</span>
-                Listar Objetos
-              </button>
-              <button 
-                className="action-btn btn-purple"
-                onClick={() => navigate('/carros/search')}
-              >
-                <span className="btn-icon">🔍</span>
-                Buscar Objeto por Criterios
-              </button>
-            </div>
+          <h3 className="section-title">⚡ Acciones Rápidas</h3>
+          <div className="actions-grid">
+            <button 
+              className="action-btn btn-blue"
+              onClick={() => navigate('/carros/create')}
+            >
+              <span className="btn-icon">🚗</span>
+              Agregar Carro
+            </button>
+            <button 
+              className="action-btn btn-blue"
+              onClick={() => navigate('/carros/update')}
+            >
+              <span className="btn-icon">✏️</span>
+              Actualizar Carro
+            </button>
+            <button 
+              className="action-btn btn-blue"
+              onClick={() => navigate('/carros/delete')}
+            >
+              <span className="btn-icon">🗑️</span>
+              Eliminar Carro
+            </button>
+            <button 
+              className="action-btn btn-blue"
+              onClick={() => navigate('/carros/list')}
+            >
+              <span className="btn-icon">📋</span>
+              Listar Carros
+            </button>
+            <button 
+              className="action-btn btn-blue"
+              onClick={() => navigate('/carros/list')}
+            >
+              <span className="btn-icon">🔍</span>
+              Buscar Carro
+            </button>
           </div>
         </section>
       </div>
@@ -214,17 +202,10 @@ function App() {
             {/* Carro management routes */}
             <Route path="/carros/create" element={<CreateCarro />} />
             <Route path="/carros/list" element={<SearchListCarros />} />
-            <Route path="/carros/search" element={<SearchCarro />} />
             <Route path="/carros/update" element={<UpdateCarro />} />
             <Route path="/carros/update/:placa" element={<UpdateCarro />} />
             <Route path="/carros/delete" element={<DeleteCarro />} />
             <Route path="/carros/delete/:placa" element={<DeleteCarro />} />
-            
-            {/* Simple routes for use cases */}
-            <Route path="/actualizar" element={<UpdateCarro />} />
-            <Route path="/eliminar" element={<DeleteCarro />} />
-            <Route path="/actualizar-formulario" element={<ActualizarCarroFormulario />} />
-            <Route path="/eliminar-formulario" element={<EliminarCarroFormulario />} />
             
             {/* Catch all - redirect to home */}
             <Route path="*" element={<Navigate to="/" replace />} />

@@ -9,7 +9,7 @@ interface ActiveFilter {
   id: string;
   field: keyof CarroFilter;
   label: string;
-  value: string | number | boolean;
+  value: any;
   displayValue: string;
 }
 
@@ -21,7 +21,8 @@ export default function SearchListCarros() {
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' }>({ text: '', type: 'success' });
   const [lastRequest, setLastRequest] = useState<string>('');
   const [lastResponse, setLastResponse] = useState<string>('');
-
+  const [sortField, setSortField] = useState<keyof Carro>('fechaRegistro');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [showFilters, setShowFilters] = useState(false);
   const [activeFilters, setActiveFilters] = useState<ActiveFilter[]>([]);
   const [newFilterField, setNewFilterField] = useState<keyof CarroFilter | ''>('');
@@ -72,7 +73,6 @@ export default function SearchListCarros() {
   // Apply filters whenever activeFilters changes
   useEffect(() => {
     applyFilters();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeFilters, carros]);
 
   const applyFilters = () => {
@@ -83,42 +83,37 @@ export default function SearchListCarros() {
 
     const filtered = carros.filter(carro => {
       return activeFilters.every(filter => {
+        const carroValue = carro[filter.field];
         const filterValue = filter.value;
 
         switch (filter.field) {
           case 'placa':
-            return carro.placa?.toLowerCase().includes(filterValue.toString().toLowerCase());
           case 'marca':
-            return carro.marca?.toLowerCase().includes(filterValue.toString().toLowerCase());
           case 'color':
-            return carro.color?.toLowerCase().includes(filterValue.toString().toLowerCase());
           case 'modelo':
-            return carro.modelo?.toLowerCase().includes(filterValue.toString().toLowerCase());
           case 'estado':
-            return carro.estado?.toLowerCase().includes(filterValue.toString().toLowerCase());
           case 'combustible':
-            return carro.combustible?.toLowerCase().includes(filterValue.toString().toLowerCase());
           case 'tipoTransmision':
-            return carro.tipoTransmision?.toLowerCase().includes(filterValue.toString().toLowerCase());
+            return carroValue?.toString().toLowerCase().includes(filterValue.toString().toLowerCase());
           
           case 'anio':
           case 'numeroPuertas':
-            return carro[filter.field] === filterValue;
+            return carroValue === filterValue;
           
           case 'tieneAireAcondicionado':
-            return carro.tieneAireAcondicionado === filterValue;
+            return carroValue === filterValue;
           
           case 'precioMin':
-            return (carro.precio || 0) >= (typeof filterValue === 'number' ? filterValue : 0);
+            return (carro.precio || 0) >= filterValue;
           
           case 'precioMax':
-            return (carro.precio || 0) <= (typeof filterValue === 'number' ? filterValue : Number.MAX_SAFE_INTEGER);
+            return (carro.precio || 0) <= filterValue;
           
           case 'fechaDesde':
-            return !carro.fechaRegistro || carro.fechaRegistro >= filterValue.toString();
+            return !carro.fechaRegistro || carro.fechaRegistro >= filterValue;
           
           case 'fechaHasta':
-            return !carro.fechaRegistro || carro.fechaRegistro <= filterValue.toString();
+            return !carro.fechaRegistro || carro.fechaRegistro <= filterValue;
           
           default:
             return true;
@@ -156,7 +151,7 @@ export default function SearchListCarros() {
     if (!newFilterField || !newFilterValue.trim()) return;
 
     const fieldLabel = getFilterOptions().find(opt => opt.value === newFilterField)?.label || newFilterField;
-    let processedValue: string | number | boolean = newFilterValue;
+    let processedValue: any = newFilterValue;
     let displayValue = newFilterValue;
 
     // Process value based on field type
@@ -196,14 +191,34 @@ export default function SearchListCarros() {
     setActiveFilters([]);
   };
 
-
+  const handleSort = (field: keyof Carro) => {
+    if (field === sortField) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
 
   const getSortedCarros = (carrosList: Carro[]): Carro[] => {
-    // Ordenar por fecha de registro (más recientes primero) por defecto
     return [...carrosList].sort((a, b) => {
-      const aDate = a.fechaRegistro || '';
-      const bDate = b.fechaRegistro || '';
-      return bDate.localeCompare(aDate);
+      const aValue = a[sortField];
+      const bValue = b[sortField];
+      
+      if (aValue === null || aValue === undefined) return 1;
+      if (bValue === null || bValue === undefined) return -1;
+      
+      let comparison = 0;
+      
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        comparison = aValue.localeCompare(bValue);
+      } else if (typeof aValue === 'number' && typeof bValue === 'number') {
+        comparison = aValue - bValue;
+      } else {
+        comparison = String(aValue).localeCompare(String(bValue));
+      }
+      
+      return sortDirection === 'asc' ? comparison : -comparison;
     });
   };
 
@@ -321,7 +336,6 @@ export default function SearchListCarros() {
           <input 
             type="date" 
             {...commonProps}
-            title={`Seleccione ${getFilterOptions().find(opt => opt.value === newFilterField)?.label}`}
           />
         );
 
@@ -337,9 +351,6 @@ export default function SearchListCarros() {
       {/* Header */}
       <div className="form-header">
         <h2>🚗 Lista de Carros ({sortedAndFilteredCarros.length} encontrados)</h2>
-        <p className="header-subtitle">
-          🔍 Utilice los filtros para buscar carros específicos. Puede agregar múltiples filtros según sus necesidades.
-        </p>
         <div className="header-actions">
           <button onClick={refreshData} className="btn-secondary" disabled={isLoading}>
             🔄 Actualizar

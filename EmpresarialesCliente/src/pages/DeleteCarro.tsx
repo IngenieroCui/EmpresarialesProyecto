@@ -71,6 +71,8 @@ export default function DeleteCarro() {
       if (result) {
         setCarro(result);
         setLastResponse(JSON.stringify(result, null, 2));
+        // Redirigir a la página de eliminación
+        navigate('/eliminar-formulario', { state: { carro: result } });
       } else {
         setError(`No se encontró un carro con la placa: ${searchPlaca}`);
         setLastResponse('Carro no encontrado');
@@ -148,8 +150,20 @@ export default function DeleteCarro() {
   return (
     <div className="delete-carro-page">
       <div className="page-header">
-        <h1>Eliminar Carro</h1>
-        <p>Busque un carro por su placa y proceda con la eliminación.</p>
+        <button onClick={() => navigate('/')} className="btn-back">
+          ← Volver al Inicio
+        </button>
+        <h1>🗑️ Eliminar Objeto</h1>
+        <p>🔍 Paso 1: Busque un carro por su placa → 🗑️ Paso 2: Confirme la eliminación</p>
+        <div className="proceso-steps">
+          <span className={`step ${!carro ? 'active' : 'completed'}`}>
+            🔍 1. Buscar Carro
+          </span>
+          <span className="step-arrow">→</span>
+          <span className={`step ${carro ? 'active' : ''}`}>
+            🗑️ 2. Confirmar Eliminación
+          </span>
+        </div>
       </div>
 
       {error && (

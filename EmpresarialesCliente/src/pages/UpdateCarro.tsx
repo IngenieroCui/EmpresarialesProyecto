@@ -72,6 +72,8 @@ export default function UpdateCarro() {
       if (result) {
         setCarro(result);
         setLastResponse(JSON.stringify(result, null, 2));
+        // Redirigir a la página de actualización
+        navigate('/actualizar-formulario', { state: { carro: result } });
       } else {
         setError(`No se encontró un carro con la placa: ${placaToSearch}`);
         setLastResponse('Carro no encontrado');
@@ -132,8 +134,20 @@ export default function UpdateCarro() {
   return (
     <div className="update-carro-page">
       <div className="page-header">
-        <h1>Actualizar Carro</h1>
-        <p>Busque un carro por su placa y actualice sus datos.</p>
+        <button onClick={() => navigate('/')} className="btn-back">
+          ← Volver al Inicio
+        </button>
+        <h1>✏️ Actualizar Objeto</h1>
+        <p>🔍 Paso 1: Busque un carro por su placa → ✏️ Paso 2: Actualice sus datos</p>
+        <div className="proceso-steps">
+          <span className={`step ${!carro ? 'active' : 'completed'}`}>
+            🔍 1. Buscar Carro
+          </span>
+          <span className="step-arrow">→</span>
+          <span className={`step ${carro ? 'active' : ''}`}>
+            ✏️ 2. Actualizar Datos
+          </span>
+        </div>
       </div>
 
       {error && (
