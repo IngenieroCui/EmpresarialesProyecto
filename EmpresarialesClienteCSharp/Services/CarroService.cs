@@ -17,6 +17,15 @@ namespace EmpresarialesClienteCSharp.Services
         {
             _httpClient = new HttpClient();
             _httpClient.Timeout = TimeSpan.FromSeconds(30);
+
+            // Configurar autenticación Basic Auth para Spring Security
+            var credentials = Convert.ToBase64String(Encoding.ASCII.GetBytes("admin:admin"));
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", credentials);
+
+            // Configurar headers adicionales
+            _httpClient.DefaultRequestHeaders.Accept.Add(
+                new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
         }
 
         // Listar todos los carros

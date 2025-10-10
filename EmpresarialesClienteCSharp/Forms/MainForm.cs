@@ -39,11 +39,20 @@ namespace EmpresarialesClienteCSharp.Forms
             carrosMenu.DropDownItems.Add("Actualizar Registro", null, AbrirFormActualizar);
             carrosMenu.DropDownItems.Add("Eliminar Registro", null, AbrirFormEliminar);
 
+            // Menú Mantenimientos
+            var mantenimientosMenu = new ToolStripMenuItem("Mantenimientos");
+            mantenimientosMenu.DropDownItems.Add("Registrar Mantenimiento", null, AbrirFormCrearMantenimiento);
+            mantenimientosMenu.DropDownItems.Add(new ToolStripSeparator());
+            mantenimientosMenu.DropDownItems.Add("Listar Mantenimientos", null, AbrirFormListarMantenimientos);
+            mantenimientosMenu.DropDownItems.Add(new ToolStripSeparator());
+            mantenimientosMenu.DropDownItems.Add("Actualizar Mantenimiento", null, AbrirFormActualizarMantenimiento);
+            mantenimientosMenu.DropDownItems.Add("Eliminar Mantenimiento", null, AbrirFormEliminarMantenimiento);
+
             // Menú Ayuda
             var ayudaMenu = new ToolStripMenuItem("Ayuda");
             ayudaMenu.DropDownItems.Add("Acerca de...", null, MostrarAcercaDe);
 
-            menuStrip.Items.AddRange(new[] { archivoMenu, carrosMenu, ayudaMenu });
+            menuStrip.Items.AddRange(new[] { archivoMenu, carrosMenu, mantenimientosMenu, ayudaMenu });
 
             // Panel Principal con scroll
             var panelPrincipal = new Panel
@@ -335,6 +344,31 @@ namespace EmpresarialesClienteCSharp.Forms
         private void AbrirFormEliminar(object? sender, EventArgs e)
         {
             var formEliminar = new EliminarCarroForm();
+            formEliminar.ShowDialog();
+        }
+
+        // Métodos para abrir formularios de Mantenimiento
+        private void AbrirFormCrearMantenimiento(object? sender, EventArgs e)
+        {
+            var formCrear = new CrearMantenimientoForm();
+            formCrear.ShowDialog();
+        }
+
+        private void AbrirFormListarMantenimientos(object? sender, EventArgs e)
+        {
+            var formListar = new ListarMantenimientosForm();
+            formListar.ShowDialog();
+        }
+
+        private void AbrirFormActualizarMantenimiento(object? sender, EventArgs e)
+        {
+            var formActualizar = new ActualizarMantenimientoForm();
+            formActualizar.ShowDialog();
+        }
+
+        private void AbrirFormEliminarMantenimiento(object? sender, EventArgs e)
+        {
+            var formEliminar = new EliminarMantenimientoForm();
             formEliminar.ShowDialog();
         }
 
