@@ -220,8 +220,8 @@ namespace EmpresarialesClienteCSharp.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar mantenimientos: {ex.Message}",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"❌ Error al cargar los mantenimientos\n\n{ex.Message}\n\nPor favor, verifique su conexión al servidor e intente nuevamente.",
+                    "Error de Operación", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -254,8 +254,8 @@ namespace EmpresarialesClienteCSharp.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al buscar: {ex.Message}",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"❌ Error al realizar la búsqueda\n\n{ex.Message}\n\nPor favor, verifique los criterios de búsqueda e intente nuevamente.",
+                    "Error de Búsqueda", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

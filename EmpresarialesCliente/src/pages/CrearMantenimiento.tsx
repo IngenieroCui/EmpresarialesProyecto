@@ -9,7 +9,7 @@ export default function CrearMantenimiento() {
   const handleSubmit = async (data: MantenimientoCreateData) => {
     try {
       await createMantenimiento(data);
-      alert('Mantenimiento creado exitosamente');
+      alert('✅ Mantenimiento registrado exitosamente\n\nEl mantenimiento para el vehículo ' + data.placaCarro + ' ha sido creado correctamente.');
       navigate('/mantenimientos');
     } catch (error) {
       throw error; // El formulario manejará el error

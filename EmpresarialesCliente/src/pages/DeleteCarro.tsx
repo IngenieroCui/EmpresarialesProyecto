@@ -54,7 +54,7 @@ export default function DeleteCarro() {
 
   const handleSearchCarro = async () => {
     if (!searchPlaca.trim()) {
-      setError('Por favor ingrese una placa para buscar');
+      setError('⚠️ Debe ingresar una placa para realizar la búsqueda');
       return;
     }
 
@@ -107,9 +107,9 @@ export default function DeleteCarro() {
       await deleteCarro(carro.placa);
       
       // Log response
-      setLastResponse('Carro eliminado exitosamente');
+      setLastResponse('Vehículo eliminado exitosamente');
 
-      setSuccessMessage(`Carro con placa ${carro.placa} eliminado exitosamente`);
+      setSuccessMessage(`✅ Vehículo eliminado correctamente\n\nEl vehículo con placa ${carro.placa} ha sido eliminado del sistema junto con todos sus mantenimientos asociados.`);
       setCarro(null); // Clear the carro from display
       setSearchPlaca(''); // Clear the search field
       
@@ -117,13 +117,13 @@ export default function DeleteCarro() {
       setTimeout(() => {
         navigate('/carros/list', { 
           state: { 
-            message: `Carro ${carro.placa} eliminado exitosamente`,
+            message: `✅ Vehículo ${carro.placa} eliminado correctamente del sistema`,
             type: 'success'
           } 
         });
       }, 2000);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Error desconocido al eliminar el carro';
+      const errorMessage = err instanceof Error ? err.message : '❌ Error al eliminar el vehículo. Por favor, intente nuevamente o contacte al administrador del sistema.';
       setError(errorMessage);
       setLastResponse(`Error: ${errorMessage}`);
     } finally {

@@ -45,25 +45,25 @@ export default function MantenimientoForm({ onSubmit, initialData, isEditing = f
 
     // Validaciones
     if (!formData.placaCarro.match(/^[A-Z]{3}-[0-9]{3}$/)) {
-      setError('La placa debe tener el formato ABC-123');
+      setError('⚠️ Formato de placa incorrecto. La placa debe tener el formato ABC-123 (3 letras, guión, 3 números)');
       setIsSubmitting(false);
       return;
     }
 
     if (formData.kilometraje < 0 || formData.kilometraje > 1000000) {
-      setError('El kilometraje debe estar entre 0 y 1,000,000 km');
+      setError('⚠️ Kilometraje inválido. El valor debe estar entre 0 y 1,000,000 km');
       setIsSubmitting(false);
       return;
     }
 
     if (formData.costo < 0) {
-      setError('El costo debe ser mayor o igual a 0');
+      setError('⚠️ Costo inválido. El valor debe ser mayor o igual a $0');
       setIsSubmitting(false);
       return;
     }
 
     if (formData.descripcion.length < 10 || formData.descripcion.length > 500) {
-      setError('La descripción debe tener entre 10 y 500 caracteres');
+      setError(`⚠️ Longitud de descripción inválida. Debe tener entre 10 y 500 caracteres (actualmente: ${formData.descripcion.length})`);
       setIsSubmitting(false);
       return;
     }
@@ -71,7 +71,7 @@ export default function MantenimientoForm({ onSubmit, initialData, isEditing = f
     try {
       await onSubmit(formData);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al enviar el formulario');
+      setError(err instanceof Error ? err.message : '❌ Error al procesar el formulario. Por favor, verifique los datos e intente nuevamente.');
     } finally {
       setIsSubmitting(false);
     }
@@ -134,9 +134,14 @@ export default function MantenimientoForm({ onSubmit, initialData, isEditing = f
           id="placaCarro"
           name="placaCarro"
           value={formData.placaCarro}
-          onChange={handleChange}
+          onChange={(e) => {
+            const value = e.target.value.toUpperCase();
+            // Permitir solo letras y guiones en el formato correcto
+            if (value === '' || /^[A-Z]{0,3}(-[0-9]{0,3})?$/.test(value)) {
+              setFormData(prev => ({ ...prev, placaCarro: value }));
+            }
+          }}
           placeholder="ABC-123"
-          pattern="[A-Z]{3}-[0-9]{3}"
           required
           disabled={isEditing}
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase disabled:bg-gray-100"
@@ -166,10 +171,19 @@ export default function MantenimientoForm({ onSubmit, initialData, isEditing = f
           type="number"
           id="kilometraje"
           name="kilometraje"
-          value={formData.kilometraje}
-          onChange={handleChange}
+          value={formData.kilometraje === 0 ? '' : formData.kilometraje}
+          onChange={(e) => {
+            const value = e.target.value === '' ? 0 : parseFloat(e.target.value);
+            setFormData(prev => ({ ...prev, kilometraje: value }));
+          }}
+          onFocus={(e) => {
+            if (formData.kilometraje === 0) {
+              e.target.value = '';
+            }
+          }}
           min="0"
           max="1000000"
+          placeholder="0"
           required
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
@@ -203,10 +217,19 @@ export default function MantenimientoForm({ onSubmit, initialData, isEditing = f
           type="number"
           id="costo"
           name="costo"
-          value={formData.costo}
-          onChange={handleChange}
+          value={formData.costo === 0 ? '' : formData.costo}
+          onChange={(e) => {
+            const value = e.target.value === '' ? 0 : parseFloat(e.target.value);
+            setFormData(prev => ({ ...prev, costo: value }));
+          }}
+          onFocus={(e) => {
+            if (formData.costo === 0) {
+              e.target.value = '';
+            }
+          }}
           min="0"
           step="0.01"
+          placeholder="0.00"
           required
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />

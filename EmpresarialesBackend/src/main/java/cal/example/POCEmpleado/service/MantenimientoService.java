@@ -229,60 +229,12 @@ public class MantenimientoService implements IMantenimientoService {
                 System.out.println("✅ Mantenimientos cargados desde JSON: " + mantenimientos.size() + " registros");
             } else {
                 System.out.println("ℹ️ Archivo JSON no existe, iniciando con lista vacía");
-                inicializarDatosDemo();
+                // Precarga de datos desactivada - no se llama a inicializarDatosDemo()
             }
         } catch (IOException e) {
             System.err.println("⚠️ Error al cargar mantenimientos desde JSON: " + e.getMessage());
-            inicializarDatosDemo();
-        }
-    }
-
-    private void inicializarDatosDemo() {
-        // Datos de demostración
-        mantenimientos.add(new Mantenimiento(
-                "ABC-123",
-                LocalDateTime.now().minusMonths(6),
-                50000,
-                "PREVENTIVO",
-                350000.0,
-                "Mantenimiento preventivo de 50,000 km: cambio de aceite, filtros y revisión general",
-                LocalDateTime.now().plusMonths(6)
-        ));
-
-        mantenimientos.add(new Mantenimiento(
-                "ABC-123",
-                LocalDateTime.now().minusMonths(3),
-                55000,
-                "CAMBIO_LLANTAS",
-                1200000.0,
-                "Cambio de las 4 llantas delanteras y traseras por desgaste",
-                null
-        ));
-
-        mantenimientos.add(new Mantenimiento(
-                "DEF-456",
-                LocalDateTime.now().minusMonths(2),
-                30000,
-                "CAMBIO_ACEITE",
-                180000.0,
-                "Cambio de aceite sintético y filtro de aceite",
-                LocalDateTime.now().plusMonths(4)
-        ));
-
-        // Marcar algunos como completados
-        if (mantenimientos.size() > 0) {
-            mantenimientos.get(0).setCompletado(true);
-        }
-        if (mantenimientos.size() > 1) {
-            mantenimientos.get(1).setCompletado(true);
-        }
-
-        try {
-            saveToJson();
-            System.out.println("✅ Datos demo de mantenimientos inicializados");
-        } catch (Exception e) {
-            System.err.println("Error al guardar datos demo: " + e.getMessage());
+            System.out.println("ℹ️ Iniciando con lista vacía");
+            // Precarga de datos desactivada - no se llama a inicializarDatosDemo()
         }
     }
 }
-

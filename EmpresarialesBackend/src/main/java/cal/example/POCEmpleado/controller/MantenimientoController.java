@@ -1,6 +1,8 @@
 package cal.example.POCEmpleado.controller;
 
+import cal.example.POCEmpleado.model.Carro;
 import cal.example.POCEmpleado.model.Mantenimiento;
+import cal.example.POCEmpleado.service.ICarroService;
 import cal.example.POCEmpleado.service.IMantenimientoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,11 +28,13 @@ import java.util.stream.Collectors;
 public class MantenimientoController {
 
     private final IMantenimientoService mantenimientoService;
+    private final ICarroService carroService;
 
     // Inyección por constructor (mejor práctica)
     @Autowired
-    public MantenimientoController(IMantenimientoService mantenimientoService) {
+    public MantenimientoController(IMantenimientoService mantenimientoService, ICarroService carroService) {
         this.mantenimientoService = mantenimientoService;
+        this.carroService = carroService;
     }
 
     @GetMapping(value = "/healthCheck")
@@ -39,17 +43,48 @@ public class MantenimientoController {
     }
 
     /**
+     * Obtener un mantenimiento específico por ID
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<?> obtenerPorId(@PathVariable String id) {
+        try {
+            Map<String, Object> filtro = new HashMap<>();
+            filtro.put("id", id);
+            List<Mantenimiento> mantenimientos = mantenimientoService.listar(filtro);
+
+            if (mantenimientos.isEmpty()) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "⚠️ No se encontró el mantenimiento solicitado. El ID '" + id + "' no existe en el sistema o ha sido eliminado.");
+                error.put("id", id);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+            }
+
+            return ResponseEntity.ok(mantenimientos.get(0));
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "❌ Error interno del servidor al obtener el mantenimiento. Por favor, contacte al administrador del sistema.");
+            error.put("detalles", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+    }
+
+    /**
      * MÉTODO UNIFICADO - Listar mantenimientos con filtros opcionales
      * Este es el ÚNICO método GET que maneja todas las consultas:
      * - Sin parámetros: retorna todos los mantenimientos
-     * - Con id: retorna un mantenimiento específico
      * - Con placa: retorna todos los mantenimientos de ese carro
      * - Con otros filtros: retorna mantenimientos filtrados
      * - Con action=estadisticas: retorna estadísticas
      */
-    @GetMapping
-    public ResponseEntity<?> listar(@RequestParam Map<String, String> params) {
+    @GetMapping(params = "!id")
+    public ResponseEntity<?> listar(@RequestParam(required = false) Map<String, String> params) {
         try {
+            // Si no hay parámetros, retornar todos
+            if (params == null || params.isEmpty()) {
+                List<Mantenimiento> mantenimientos = mantenimientoService.listar(new HashMap<>());
+                return ResponseEntity.ok(mantenimientos);
+            }
+
             // Manejar acciones especiales
             String action = params.get("action");
             if ("estadisticas".equals(action)) {
@@ -60,7 +95,9 @@ public class MantenimientoController {
                 if (placa != null && !placa.trim().isEmpty()) {
                     return calcularCostoTotalPorPlaca(placa);
                 }
-                return ResponseEntity.badRequest().body("Placa requerida para calcular costo total");
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "⚠️ Placa requerida. Debe proporcionar la placa del vehículo para calcular el costo total de mantenimientos.");
+                return ResponseEntity.badRequest().body(error);
             }
             if ("urgentes".equals(action)) {
                 return obtenerMantenimientosUrgentes();
@@ -76,14 +113,6 @@ public class MantenimientoController {
                 if (value != null && !value.trim().isEmpty() && !"action".equals(key)) {
                     // Conversión de tipos según el parámetro
                     switch (key.toLowerCase()) {
-                        case "id":
-                            try {
-                                filtros.put(key, Long.parseLong(value));
-                            } catch (NumberFormatException e) {
-                                return ResponseEntity.badRequest()
-                                        .body("Valor inválido para ID: " + value);
-                            }
-                            break;
                         case "costo_min":
                         case "costo_max":
                         case "costo":
@@ -93,6 +122,20 @@ public class MantenimientoController {
                                 return ResponseEntity.badRequest()
                                         .body("Valor inválido para costo: " + value);
                             }
+                            break;
+                        case "kilometraje":
+                        case "kilometraje_min":
+                        case "kilometraje_max":
+                            try {
+                                filtros.put(key, Integer.parseInt(value));
+                            } catch (NumberFormatException e) {
+                                return ResponseEntity.badRequest()
+                                        .body("Valor inválido para kilometraje: " + value);
+                            }
+                            break;
+                        case "completado":
+                        case "urgente":
+                            filtros.put(key, Boolean.parseBoolean(value));
                             break;
                         case "fecha_desde":
                         case "fecha_hasta":
@@ -114,8 +157,10 @@ public class MantenimientoController {
             return ResponseEntity.ok(mantenimientos);
 
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al consultar mantenimientos: " + e.getMessage());
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "❌ Error interno del servidor al consultar mantenimientos. Por favor, contacte al administrador del sistema.");
+            error.put("detalles", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
 
@@ -129,6 +174,24 @@ public class MantenimientoController {
         }
 
         try {
+            // VALIDAR QUE EL CARRO EXISTA
+            if (mantenimiento.getPlacaCarro() == null || mantenimiento.getPlacaCarro().trim().isEmpty()) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "La placa del carro es requerida");
+                return ResponseEntity.badRequest().body(error);
+            }
+
+            Map<String, Object> filtroPlaca = new HashMap<>();
+            filtroPlaca.put("placa", mantenimiento.getPlacaCarro());
+            List<Carro> carrosExistentes = carroService.listar(filtroPlaca);
+
+            if (carrosExistentes.isEmpty()) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "No existe un carro con la placa: " + mantenimiento.getPlacaCarro());
+                error.put("placaCarro", mantenimiento.getPlacaCarro());
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+            }
+
             // Verificar si el mantenimiento ya existe
             if (mantenimiento.getId() != null) {
                 Map<String, Object> filtro = new HashMap<>();
@@ -136,8 +199,10 @@ public class MantenimientoController {
                 List<Mantenimiento> existentes = mantenimientoService.listar(filtro);
 
                 if (!existentes.isEmpty()) {
-                    return ResponseEntity.status(HttpStatus.CONFLICT)
-                            .body("Ya existe un mantenimiento con ID: " + mantenimiento.getId());
+                    Map<String, String> error = new HashMap<>();
+                    error.put("error", "⚠️ Conflicto de datos. Ya existe un mantenimiento registrado con el ID: " + mantenimiento.getId());
+                    error.put("id", mantenimiento.getId());
+                    return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
                 }
             }
 
@@ -145,8 +210,10 @@ public class MantenimientoController {
             return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
 
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al crear mantenimiento: " + e.getMessage());
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "❌ Error interno del servidor al crear el mantenimiento. Por favor, verifique los datos e intente nuevamente.");
+            error.put("detalles", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
 
@@ -171,13 +238,33 @@ public class MantenimientoController {
                 return ResponseEntity.notFound().build();
             }
 
+            // VALIDAR QUE EL CARRO EXISTA
+            if (mantenimiento.getPlacaCarro() == null || mantenimiento.getPlacaCarro().trim().isEmpty()) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "La placa del carro es requerida");
+                return ResponseEntity.badRequest().body(error);
+            }
+
+            Map<String, Object> filtroPlaca = new HashMap<>();
+            filtroPlaca.put("placa", mantenimiento.getPlacaCarro());
+            List<Carro> carrosExistentes = carroService.listar(filtroPlaca);
+
+            if (carrosExistentes.isEmpty()) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "No existe un carro con la placa: " + mantenimiento.getPlacaCarro());
+                error.put("placaCarro", mantenimiento.getPlacaCarro());
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+            }
+
             mantenimiento.setId(id);
             Mantenimiento actualizado = mantenimientoService.save(mantenimiento);
             return ResponseEntity.ok(actualizado);
 
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al actualizar mantenimiento: " + e.getMessage());
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "❌ Error interno del servidor al actualizar el mantenimiento. Por favor, verifique los datos e intente nuevamente.");
+            error.put("detalles", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
 

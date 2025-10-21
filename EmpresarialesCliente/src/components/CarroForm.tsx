@@ -147,7 +147,13 @@ export default function CarroForm({
             type="text"
             id="placa"
             value={formData.placa}
-            onChange={(e) => handleInputChange('placa', e.target.value.toUpperCase())}
+            onChange={(e) => {
+              const value = e.target.value.toUpperCase();
+              // Permitir solo letras y guiones en el formato correcto
+              if (value === '' || /^[A-Z]{0,3}(-[0-9]{0,3})?$/.test(value)) {
+                handleInputChange('placa', value);
+              }
+            }}
             placeholder="ABC-123"
             disabled={isReadOnly || (initialData ? true : isLoading)}
             className={errors.placa ? 'error' : ''}
@@ -278,10 +284,16 @@ export default function CarroForm({
           <input
             type="number"
             id="precio"
-            value={formData.precio}
-            onChange={(e) => handleInputChange('precio', parseFloat(e.target.value) || 0)}
+            value={formData.precio === 0 ? '' : formData.precio}
+            onChange={(e) => handleInputChange('precio', e.target.value === '' ? 0 : parseFloat(e.target.value))}
+            onFocus={(e) => {
+              if (formData.precio === 0) {
+                e.target.value = '';
+              }
+            }}
             min="0"
             step="0.01"
+            placeholder="0.00"
             disabled={isReadOnly || isLoading}
             className={errors.precio ? 'error' : ''}
           />

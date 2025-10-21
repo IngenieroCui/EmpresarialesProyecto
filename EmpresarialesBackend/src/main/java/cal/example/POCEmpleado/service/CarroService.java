@@ -1,9 +1,11 @@
 package cal.example.POCEmpleado.service;
 
 import cal.example.POCEmpleado.model.Carro;
+import cal.example.POCEmpleado.model.Mantenimiento;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
@@ -30,6 +32,9 @@ public class CarroService implements ICarroService {
     private final List<Carro> carros = new ArrayList<>();
     private final ObjectMapper objectMapper;
     private final String JSON_FILE_PATH = "carros.json";
+    
+    @Autowired
+    private MantenimientoService mantenimientoService;
 
     public CarroService() {
         this.objectMapper = new ObjectMapper();
@@ -66,6 +71,14 @@ public class CarroService implements ICarroService {
     public boolean deleteByPlaca(String placa) {
         boolean removed = carros.removeIf(carro -> carro.getPlaca().equalsIgnoreCase(placa));
         if (removed) {
+            // Eliminar mantenimientos asociados en cascada
+            if (mantenimientoService != null) {
+                List<Mantenimiento> mantenimientos = mantenimientoService.getMantenimientosPorCarro(placa);
+                for (Mantenimiento m : mantenimientos) {
+                    mantenimientoService.deleteById(m.getId());
+                }
+                System.out.println("✅ Eliminados " + mantenimientos.size() + " mantenimientos del carro " + placa);
+            }
             saveToJson(); // Persistir cambios
         }
         return removed;

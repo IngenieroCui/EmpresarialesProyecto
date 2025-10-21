@@ -75,11 +75,11 @@ export default function UpdateCarro() {
         // Redirigir a la página de actualización
         navigate('/actualizar-formulario', { state: { carro: result } });
       } else {
-        setError(`No se encontró un carro con la placa: ${placaToSearch}`);
+        setError(`⚠️ No se encontró ningún vehículo con la placa: ${placaToSearch}\n\nVerifique que la placa esté correctamente escrita y que el vehículo esté registrado en el sistema.`);
         setLastResponse('Carro no encontrado');
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Error desconocido al buscar el carro';
+      const errorMessage = err instanceof Error ? err.message : '❌ Error al buscar el vehículo. Por favor, verifique su conexión e intente nuevamente.';
       setError(errorMessage);
       setLastResponse(`Error: ${errorMessage}`);
     } finally {
@@ -89,7 +89,7 @@ export default function UpdateCarro() {
 
   const handleUpdate = async (data: CarroUpdateData) => {
     if (!carro) {
-      setError('No hay carro seleccionado para actualizar');
+      setError('⚠️ No hay ningún vehículo seleccionado para actualizar');
       return;
     }
 
@@ -106,20 +106,20 @@ export default function UpdateCarro() {
       // Log response
       setLastResponse(JSON.stringify(result, null, 2));
 
-      setSuccessMessage(`Carro con placa ${result.placa} actualizado exitosamente`);
+      setSuccessMessage(`✅ Vehículo actualizado exitosamente\n\n${result.marca} ${result.modelo} con placa ${result.placa} ha sido actualizado correctamente.`);
       setCarro(result); // Update local state with new data
       
       // Redirect after 2 seconds
       setTimeout(() => {
         navigate('/carros/list', { 
           state: { 
-            message: `Carro ${result.placa} actualizado exitosamente`,
+            message: `✅ Vehículo ${result.placa} (${result.marca} ${result.modelo}) actualizado correctamente`,
             type: 'success'
           } 
         });
       }, 2000);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Error desconocido al actualizar el carro';
+      const errorMessage = err instanceof Error ? err.message : '❌ Error al actualizar el vehículo. Por favor, verifique los datos ingresados e intente nuevamente.';
       setError(errorMessage);
       setLastResponse(`Error: ${errorMessage}`);
     } finally {

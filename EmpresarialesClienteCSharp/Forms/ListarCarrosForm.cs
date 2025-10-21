@@ -82,8 +82,8 @@ namespace EmpresarialesClienteCSharp.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar los carros: {ex.Message}", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"❌ Error al cargar los vehículos\n\n{ex.Message}\n\nPor favor, verifique su conexión al servidor e intente nuevamente.", 
+                    "Error de Operación", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

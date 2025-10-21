@@ -50,11 +50,20 @@ namespace EmpresarialesClienteCSharp.Services
         {
             try
             {
-                var response = await _httpClient.GetAsync($"{BASE_URL}?id={id}");
+                var response = await _httpClient.GetAsync($"{BASE_URL}/{id}");
+                
+                if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    return null;
+                }
+                
                 response.EnsureSuccessStatusCode();
                 var content = await response.Content.ReadAsStringAsync();
-                var mantenimientos = JsonConvert.DeserializeObject<List<Mantenimiento>>(content);
-                return mantenimientos?.Count > 0 ? mantenimientos[0] : null;
+                return JsonConvert.DeserializeObject<Mantenimiento>(content);
+            }
+            catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return null;
             }
             catch (Exception ex)
             {
@@ -140,7 +149,26 @@ namespace EmpresarialesClienteCSharp.Services
                 });
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
                 var response = await _httpClient.PostAsync(BASE_URL, content);
-                response.EnsureSuccessStatusCode();
+                
+                // Manejar errores de validación (404 = carro no existe)
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    try
+                    {
+                        var errorObj = JsonConvert.DeserializeObject<Dictionary<string, string>>(errorContent);
+                        if (errorObj != null && errorObj.ContainsKey("error"))
+                        {
+                            throw new Exception(errorObj["error"]);
+                        }
+                    }
+                    catch (JsonException)
+                    {
+                        // Si no es JSON, usar mensaje genérico
+                    }
+                    response.EnsureSuccessStatusCode(); // Lanzará excepción con código de estado
+                }
+                
                 var responseContent = await response.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<Mantenimiento>(responseContent)
                     ?? throw new Exception("No se pudo crear el mantenimiento");
@@ -163,7 +191,26 @@ namespace EmpresarialesClienteCSharp.Services
                 });
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
                 var response = await _httpClient.PutAsync($"{BASE_URL}/{id}", content);
-                response.EnsureSuccessStatusCode();
+                
+                // Manejar errores de validación (404 = carro no existe)
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    try
+                    {
+                        var errorObj = JsonConvert.DeserializeObject<Dictionary<string, string>>(errorContent);
+                        if (errorObj != null && errorObj.ContainsKey("error"))
+                        {
+                            throw new Exception(errorObj["error"]);
+                        }
+                    }
+                    catch (JsonException)
+                    {
+                        // Si no es JSON, usar mensaje genérico
+                    }
+                    response.EnsureSuccessStatusCode(); // Lanzará excepción con código de estado
+                }
+                
                 var responseContent = await response.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<Mantenimiento>(responseContent)
                     ?? throw new Exception("No se pudo actualizar el mantenimiento");

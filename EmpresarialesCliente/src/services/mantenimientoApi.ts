@@ -76,7 +76,10 @@ async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
       } else {
         try {
           const errorData = await response.json();
-          if (errorData.message) {
+          // Intentar obtener el mensaje de error del backend
+          if (errorData.error) {
+            errorMessage = errorData.error;
+          } else if (errorData.message) {
             errorMessage = errorData.message;
           }
         } catch {
@@ -157,8 +160,15 @@ export async function getMantenimientoById(id: string): Promise<Mantenimiento | 
     throw new Error('ID is required');
   }
 
-  const mantenimientos = await listMantenimientos({ id: id.trim() });
-  return mantenimientos.length > 0 ? mantenimientos[0] : null;
+  try {
+    const mantenimiento = await apiFetch<Mantenimiento>(`${API_ENDPOINT}/${id.trim()}`);
+    return mantenimiento;
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) {
+      return null;
+    }
+    throw error;
+  }
 }
 
 /**

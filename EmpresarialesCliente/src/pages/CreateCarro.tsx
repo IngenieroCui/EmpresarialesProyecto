@@ -32,19 +32,19 @@ export default function CreateCarro() {
       // Log response
       setLastResponse(JSON.stringify(result, null, 2));
 
-      setSuccessMessage(`Carro creado exitosamente con placa: ${result.placa}`);
+      setSuccessMessage(`✅ Vehículo registrado exitosamente\n\n${result.marca} ${result.modelo} con placa ${result.placa} ha sido agregado al sistema.`);
       
       // Redirect after 2 seconds
       setTimeout(() => {
         navigate('/carros/list', { 
           state: { 
-            message: `Carro ${result.placa} creado exitosamente`,
+            message: `✅ Vehículo ${result.placa} (${result.marca} ${result.modelo}) registrado correctamente`,
             type: 'success'
           } 
         });
       }, 2000);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Error desconocido al crear el carro';
+      const errorMessage = err instanceof Error ? err.message : '❌ Error al registrar el vehículo. Por favor, verifique los datos ingresados e intente nuevamente.';
       setError(errorMessage);
       setLastResponse(`Error: ${errorMessage}`);
     } finally {

@@ -224,11 +224,13 @@ Fecha Registro:     {mantenimiento.FechaRegistro?.ToString("dd/MM/yyyy HH:mm") ?
         {
             if (_mantenimientoActual == null)
             {
-                MessageBox.Show("No hay mantenimiento cargado", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("⚠️ No hay mantenimiento cargado\n\nPor favor, busque y seleccione un mantenimiento antes de intentar eliminarlo.", 
+                    "Operación No Disponible", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             var result = MessageBox.Show(
+                $"⚠️ CONFIRMAR ELIMINACIÓN\n\n" +
                 $"¿Está COMPLETAMENTE SEGURO que desea eliminar este mantenimiento?\n\n" +
                 $"Placa: {_mantenimientoActual.PlacaCarro}\n" +
                 $"Tipo: {_mantenimientoActual.TipoMantenimiento}\n" +
@@ -254,22 +256,22 @@ Fecha Registro:     {mantenimiento.FechaRegistro?.ToString("dd/MM/yyyy HH:mm") ?
 
                 if (eliminado)
                 {
-                    MessageBox.Show("Mantenimiento eliminado exitosamente",
-                        "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show($"✅ Mantenimiento eliminado exitosamente\n\nEl registro del mantenimiento para el vehículo {_mantenimientoActual.PlacaCarro} ha sido eliminado correctamente del sistema.",
+                        "Operación Exitosa", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                     this.DialogResult = DialogResult.OK;
                     this.Close();
                 }
                 else
                 {
-                    MessageBox.Show("No se pudo eliminar el mantenimiento",
-                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("❌ No se pudo eliminar el mantenimiento\n\nEl servidor no pudo procesar la solicitud de eliminación. Por favor, intente nuevamente.",
+                        "Error de Operación", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al eliminar el mantenimiento: {ex.Message}",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"❌ Error al eliminar el mantenimiento\n\n{ex.Message}\n\nPor favor, verifique su conexión e intente nuevamente.",
+                    "Error de Operación", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 btnEliminar.Enabled = true;
                 btnEliminar.Text = "Confirmar Eliminación";
             }

@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import MantenimientoForm from '../components/MantenimientoForm';
 import type { Mantenimiento, MantenimientoCreateData } from '../types/Mantenimiento';
 import { getMantenimientoById, updateMantenimiento } from '../services/mantenimientoApi';
 
 export default function ActualizarMantenimiento() {
   const navigate = useNavigate();
+  const { id: idFromParams } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
-  const id = searchParams.get('id');
+  const idFromQuery = searchParams.get('id');
+  const id = idFromParams || idFromQuery;
 
   const [mantenimiento, setMantenimiento] = useState<Mantenimiento | null>(null);
   const [loading, setLoading] = useState(true);
@@ -15,12 +17,13 @@ export default function ActualizarMantenimiento() {
 
   useEffect(() => {
     if (!id) {
-      setError('ID de mantenimiento no proporcionado');
+      setError('⚠️ ID de mantenimiento no proporcionado. No es posible cargar la información.');
       setLoading(false);
       return;
     }
 
     cargarMantenimiento();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const cargarMantenimiento = async () => {
@@ -32,10 +35,10 @@ export default function ActualizarMantenimiento() {
       if (data) {
         setMantenimiento(data);
       } else {
-        setError('Mantenimiento no encontrado');
+        setError('⚠️ No se encontró el mantenimiento solicitado. Es posible que haya sido eliminado.');
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al cargar el mantenimiento');
+      setError(err instanceof Error ? err.message : '❌ Error al cargar la información del mantenimiento. Por favor, intente nuevamente.');
     } finally {
       setLoading(false);
     }
@@ -43,12 +46,12 @@ export default function ActualizarMantenimiento() {
 
   const handleSubmit = async (data: MantenimientoCreateData) => {
     if (!id) {
-      throw new Error('ID de mantenimiento no disponible');
+      throw new Error('⚠️ ID de mantenimiento no disponible para realizar la actualización');
     }
 
     try {
       await updateMantenimiento(id, { ...data, id });
-      alert('Mantenimiento actualizado exitosamente');
+      alert('✅ Mantenimiento actualizado exitosamente\n\nLa información del mantenimiento ha sido actualizada correctamente en el sistema.');
       navigate('/mantenimientos');
     } catch (error) {
       throw error; // El formulario manejará el error

@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { getMantenimientoById, deleteMantenimiento } from '../services/mantenimientoApi';
 import type { Mantenimiento } from '../types/Mantenimiento';
 
 export default function EliminarMantenimiento() {
   const navigate = useNavigate();
+  const { id: idFromParams } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
-  const idFromUrl = searchParams.get('id');
+  const idFromQuery = searchParams.get('id');
+  const idFromUrl = idFromParams || idFromQuery;
 
   const [id, setId] = useState(idFromUrl || '');
   const [mantenimiento, setMantenimiento] = useState<Mantenimiento | null>(null);
@@ -17,7 +19,7 @@ export default function EliminarMantenimiento() {
     const idToSearch = searchId || id.trim();
 
     if (!idToSearch) {
-      setError('Por favor ingrese un ID');
+      setError('⚠️ Debe ingresar un ID de mantenimiento para realizar la búsqueda');
       return;
     }
 
@@ -28,11 +30,11 @@ export default function EliminarMantenimiento() {
       if (data) {
         setMantenimiento(data);
       } else {
-        setError('No se encontró un mantenimiento con ese ID');
+        setError(`⚠️ No se encontró ningún mantenimiento con el ID: ${idToSearch}\n\nVerifique que el ID sea correcto y que el mantenimiento no haya sido eliminado.`);
         setMantenimiento(null);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al buscar el mantenimiento');
+      setError(err instanceof Error ? err.message : '❌ Error al buscar el mantenimiento. Por favor, verifique su conexión e intente nuevamente.');
       setMantenimiento(null);
     } finally {
       setLoading(false);
@@ -51,9 +53,11 @@ export default function EliminarMantenimiento() {
     if (!mantenimiento) return;
 
     const confirmar = window.confirm(
+      `⚠️ CONFIRMAR ELIMINACIÓN\n\n` +
       `¿Está seguro que desea eliminar este mantenimiento?\n\n` +
       `Placa: ${mantenimiento.placaCarro}\n` +
       `Tipo: ${mantenimiento.tipoMantenimiento}\n` +
+      `Fecha: ${formatearFecha(mantenimiento.fechaMantenimiento)}\n\n` +
       `Esta acción no se puede deshacer.`
     );
 
@@ -63,12 +67,12 @@ export default function EliminarMantenimiento() {
       setLoading(true);
       setError('');
       await deleteMantenimiento(mantenimiento.id);
-      alert('Mantenimiento eliminado exitosamente');
+      alert('✅ Mantenimiento eliminado exitosamente\n\nEl registro del mantenimiento ha sido eliminado correctamente del sistema.');
       setMantenimiento(null);
       setId('');
       navigate('/mantenimientos');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al eliminar el mantenimiento');
+      setError(err instanceof Error ? err.message : '❌ Error al eliminar el mantenimiento. Por favor, intente nuevamente o contacte al administrador del sistema.');
     } finally {
       setLoading(false);
     }

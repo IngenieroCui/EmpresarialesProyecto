@@ -56,6 +56,46 @@ export default function Navbar() {
             </li>
           </ul>
         </li>
+
+        <li className="nav-item dropdown">
+          <button className="nav-button dropdown-toggle">
+            Gestión de Mantenimientos
+          </button>
+          <ul className="dropdown-menu">
+            <li>
+              <Link 
+                to="/mantenimientos/crear" 
+                className={`dropdown-link ${isActive('/mantenimientos/crear') ? 'active' : ''}`}
+              >
+                Crear Mantenimiento
+              </Link>
+            </li>
+            <li>
+              <Link 
+                to="/mantenimientos" 
+                className={`dropdown-link ${isActive('/mantenimientos') ? 'active' : ''}`}
+              >
+                Listar Mantenimientos
+              </Link>
+            </li>
+            <li>
+              <Link 
+                to="/mantenimientos/actualizar" 
+                className={`dropdown-link ${isActive('/mantenimientos/actualizar') ? 'active' : ''}`}
+              >
+                Actualizar Mantenimiento
+              </Link>
+            </li>
+            <li>
+              <Link 
+                to="/mantenimientos/eliminar" 
+                className={`dropdown-link ${isActive('/mantenimientos/eliminar') ? 'active' : ''}`}
+              >
+                Eliminar Mantenimiento
+              </Link>
+            </li>
+          </ul>
+        </li>
         
         <li className="nav-item">
           <Link 

@@ -12,6 +12,8 @@ import CrearMantenimiento from './pages/CrearMantenimiento';
 import ListarMantenimientos from './pages/ListarMantenimientos';
 import ActualizarMantenimiento from './pages/ActualizarMantenimiento';
 import EliminarMantenimiento from './pages/EliminarMantenimiento';
+import SeleccionarMantenimientoActualizar from './pages/SeleccionarMantenimientoActualizar';
+import SeleccionarMantenimientoEliminar from './pages/SeleccionarMantenimientoEliminar';
 
 // Home Page Component
 const HomePage = () => {
@@ -521,7 +523,9 @@ function App() {
             {/* Mantenimientos - Casos de uso */}
             <Route path="/mantenimientos" element={<ListarMantenimientos />} />
             <Route path="/mantenimientos/crear" element={<CrearMantenimiento />} />
+            <Route path="/mantenimientos/actualizar" element={<SeleccionarMantenimientoActualizar />} />
             <Route path="/mantenimientos/actualizar/:id" element={<ActualizarMantenimiento />} />
+            <Route path="/mantenimientos/eliminar" element={<SeleccionarMantenimientoEliminar />} />
             <Route path="/mantenimientos/eliminar/:id" element={<EliminarMantenimiento />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

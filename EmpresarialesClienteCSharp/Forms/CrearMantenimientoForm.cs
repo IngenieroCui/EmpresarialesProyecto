@@ -262,8 +262,8 @@ namespace EmpresarialesClienteCSharp.Forms
             string placa = txtPlacaCarro.Text.Trim();
             if (!string.IsNullOrEmpty(placa) && !System.Text.RegularExpressions.Regex.IsMatch(placa, @"^[A-Z]{3}-[0-9]{3}$"))
             {
-                MessageBox.Show("La placa debe tener el formato ABC-123",
-                    "Formato Incorrecto", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("⚠️ Formato de placa incorrecto\n\nLa placa debe tener el formato ABC-123 (3 letras mayúsculas, guión, 3 números)",
+                    "Validación de Placa", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtPlacaCarro.Focus();
             }
         }
@@ -273,28 +273,32 @@ namespace EmpresarialesClienteCSharp.Forms
             // Validaciones
             if (string.IsNullOrWhiteSpace(txtPlacaCarro.Text))
             {
-                MessageBox.Show("La placa del carro es obligatoria", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("⚠️ La placa del vehículo es obligatoria\n\nPor favor, ingrese la placa del carro antes de continuar.", 
+                    "Campo Obligatorio", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtPlacaCarro.Focus();
                 return;
             }
 
             if (!System.Text.RegularExpressions.Regex.IsMatch(txtPlacaCarro.Text.Trim(), @"^[A-Z]{3}-[0-9]{3}$"))
             {
-                MessageBox.Show("La placa debe tener el formato ABC-123", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("⚠️ Formato de placa incorrecto\n\nLa placa debe tener el formato ABC-123 (3 letras mayúsculas, guión, 3 números)", 
+                    "Validación de Placa", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtPlacaCarro.Focus();
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(txtDescripcion.Text) || txtDescripcion.Text.Length < 10)
             {
-                MessageBox.Show("La descripción debe tener al menos 10 caracteres", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("⚠️ La descripción es demasiado corta\n\nDebe tener al menos 10 caracteres para proporcionar información útil sobre el mantenimiento.", 
+                    "Descripción Incompleta", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtDescripcion.Focus();
                 return;
             }
 
             if (txtDescripcion.Text.Length > 500)
             {
-                MessageBox.Show("La descripción no puede exceder 500 caracteres", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"⚠️ La descripción es demasiado larga\n\nLa descripción no puede exceder 500 caracteres. Actualmente tiene {txtDescripcion.Text.Length} caracteres.", 
+                    "Descripción Excesiva", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtDescripcion.Focus();
                 return;
             }
@@ -318,16 +322,16 @@ namespace EmpresarialesClienteCSharp.Forms
 
                 await _mantenimientoService.CrearMantenimientoAsync(mantenimiento);
 
-                MessageBox.Show("Mantenimiento creado exitosamente",
-                    "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show($"✅ Mantenimiento registrado exitosamente\n\nEl mantenimiento de tipo {mantenimiento.TipoMantenimiento} para el vehículo {mantenimiento.PlacaCarro} ha sido creado correctamente en el sistema.",
+                    "Operación Exitosa", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 this.DialogResult = DialogResult.OK;
                 this.Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al crear el mantenimiento: {ex.Message}",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"❌ Error al crear el mantenimiento\n\n{ex.Message}\n\nPor favor, verifique los datos ingresados e intente nuevamente.",
+                    "Error de Operación", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 btnGuardar.Enabled = true;
                 btnGuardar.Text = "Guardar";
             }

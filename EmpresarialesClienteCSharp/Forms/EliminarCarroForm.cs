@@ -113,7 +113,8 @@ namespace EmpresarialesClienteCSharp.Forms
             {
                 if (string.IsNullOrWhiteSpace(txtPlaca.Text))
                 {
-                    MessageBox.Show("Por favor, ingrese una placa.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("⚠️ Debe ingresar una placa\n\nPor favor, ingrese la placa del vehículo que desea buscar.", 
+                        "Campo Obligatorio", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
@@ -131,14 +132,16 @@ namespace EmpresarialesClienteCSharp.Forms
                 }
                 else
                 {
-                    MessageBox.Show("No se encontró ningún carro con esa placa.", "No encontrado", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show($"⚠️ Vehículo no encontrado\n\nNo se encontró ningún vehículo con la placa: {txtPlaca.Text.ToUpper()}\n\nVerifique que la placa esté correctamente escrita y que el vehículo esté registrado en el sistema.", 
+                        "Búsqueda Sin Resultados", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     lblInfo.Text = "";
                     ((Button)this.Controls[5]).Enabled = false;
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al buscar: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"❌ Error al buscar el vehículo\n\n{ex.Message}\n\nPor favor, verifique su conexión e intente nuevamente.", 
+                    "Error de Operación", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -147,7 +150,10 @@ namespace EmpresarialesClienteCSharp.Forms
             try
             {
                 var result = MessageBox.Show(
-                    "¿Está seguro que desea eliminar este carro?\n\nEsta acción no se puede deshacer.",
+                    $"⚠️ CONFIRMAR ELIMINACIÓN\n\n" +
+                    $"¿Está seguro que desea eliminar el vehículo con placa {txtPlaca.Text.ToUpper()}?\n\n" +
+                    $"Esta acción eliminará también todos los mantenimientos asociados.\n\n" +
+                    $"Esta acción NO SE PUEDE DESHACER.",
                     "Confirmar Eliminación",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Warning
@@ -156,13 +162,15 @@ namespace EmpresarialesClienteCSharp.Forms
                 if (result == DialogResult.Yes)
                 {
                     await _carroService.EliminarCarroAsync(txtPlaca.Text.ToUpper());
-                    MessageBox.Show("Carro eliminado exitosamente!", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show($"✅ Vehículo eliminado exitosamente\n\nEl vehículo con placa {txtPlaca.Text.ToUpper()} y todos sus mantenimientos asociados han sido eliminados correctamente del sistema.", 
+                        "Operación Exitosa", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     this.Close();
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al eliminar: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"❌ Error al eliminar el vehículo\n\n{ex.Message}\n\nPor favor, intente nuevamente o contacte al administrador del sistema.", 
+                    "Error de Operación", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }
