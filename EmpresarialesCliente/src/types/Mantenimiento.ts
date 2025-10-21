@@ -1,17 +1,21 @@
+/**
+ * Tipo Mantenimiento según backend Java y C#
+ * Alineado con cal.example.POCEmpleado.model.Mantenimiento
+ */
 export interface Mantenimiento {
-  id: string;                           // UUID
-  placaCarro: string;                   // FK → Carro.placa (formato ABC-123)
-  fechaMantenimiento: string;           // "YYYY-MM-DD HH:mm:ss" (LocalDateTime)
-  kilometraje: number;                  // int
-  tipoMantenimiento: string;            // PREVENTIVO | CORRECTIVO | REVISION | CAMBIO_ACEITE | CAMBIO_LLANTAS | OTROS
-  costo: number;                        // double
-  descripcion: string;                  // text (10-500 caracteres)
-  proximoMantenimiento: string | null;  // "YYYY-MM-DD HH:mm:ss" (LocalDateTime, opcional)
-  completado: boolean;                  // boolean
-  fechaRegistro: string;                // "YYYY-MM-DD HH:mm:ss" (LocalDateTime)
-  estadoMantenimiento?: string;         // optional/read-only: COMPLETADO | URGENTE | PENDIENTE
-  esUrgente?: boolean;                  // optional/read-only
-  costoConImpuesto?: number;            // optional/read-only
+  id: string;                         // String (UUID) en Java y C#
+  placaCarro: string;                 // FK a Carro
+  fechaMantenimiento: string;         // LocalDateTime en Java, formato "yyyy-MM-dd HH:mm:ss"
+  kilometraje: number;                // int en Java
+  tipoMantenimiento: string;          // Tipo de mantenimiento
+  costo: number;                      // double en Java
+  descripcion: string;                // Descripción del mantenimiento
+  proximoMantenimiento: string | null; // LocalDateTime opcional
+  completado: boolean;                // Estado de completado
+  fechaRegistro?: string;             // LocalDateTime, formato "yyyy-MM-dd HH:mm:ss"
+  estadoMantenimiento?: string;       // Calculado: COMPLETADO, URGENTE, VENCIDO, PENDIENTE
+  esUrgente?: boolean;                // Calculado
+  costoConImpuesto?: number;          // Calculado
 }
 
 export type MantenimientoCreateData = Omit<Mantenimiento, 'id' | 'fechaRegistro' | 'estadoMantenimiento' | 'esUrgente' | 'costoConImpuesto'>;
@@ -21,7 +25,9 @@ export type MantenimientoUpdateData = Omit<Mantenimiento, 'fechaRegistro' | 'est
 export type MantenimientoFilter = {
   id?: string;
   placaCarro?: string;
+  placa?: string; // Alias para placaCarro
   tipoMantenimiento?: string;
+  tipo?: string; // Alias para tipoMantenimiento
   kilometraje?: number;
   kilometraje_min?: number;
   kilometraje_max?: number;
@@ -32,20 +38,23 @@ export type MantenimientoFilter = {
 };
 
 export interface MantenimientoEstadisticas {
-  totalMantenimientos: number;
-  costoTotal: number;
-  costoPromedio: number;
-  mantenimientosUrgentes: number;
+  total_mantenimientos: number;
+  costo_promedio: number;
+  costo_total: number;
 }
 
-// Enums para dropdown options
+// Tipos comunes de mantenimiento
 export const TIPOS_MANTENIMIENTO = [
   'PREVENTIVO',
   'CORRECTIVO',
-  'REVISION',
   'CAMBIO_ACEITE',
+  'CAMBIO_FRENOS',
   'CAMBIO_LLANTAS',
-  'OTROS'
+  'ALINEACION_BALANCEO',
+  'REVISION_GENERAL',
+  'CAMBIO_FILTROS',
+  'SISTEMA_ELECTRICO',
+  'TRANSMISION',
+  'SUSPENSION',
+  'OTRO'
 ] as const;
-
-export type TipoMantenimiento = typeof TIPOS_MANTENIMIENTO[number];

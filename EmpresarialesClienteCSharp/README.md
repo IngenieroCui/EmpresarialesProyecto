@@ -1,7 +1,15 @@
 # Cliente C# WinForms - Concesionario AAA
 
 ## Descripción
-Cliente de escritorio desarrollado en C# con WinForms que consume los servicios REST del backend Spring Boot para la gestión de carros.
+Cliente de escritorio desarrollado en C# con WinForms que consume los servicios REST del backend Spring Boot para la gestión de carros y mantenimientos del Concesionario AAA.
+
+## 📋 Características
+
+- 🚗 **Gestión Completa de Carros**: CRUD completo
+- 🔧 **Gestión de Mantenimientos**: Registro y seguimiento de mantenimientos
+- 🔐 **Autenticación**: Basic Auth integrado
+- 📊 **Interfaz Intuitiva**: Formularios dedicados para cada operación
+- ✅ **Validaciones**: Validación robusta de datos
 
 ## Requisitos
 - .NET 8.0 SDK o superior
@@ -32,25 +40,33 @@ dotnet run
 ```
 EmpresarialesClienteCSharp/
 ├── Models/
-│   └── Carro.cs                 # Modelo de datos
+│   ├── Carro.cs                       # Modelo de carros
+│   └── Mantenimiento.cs               # Modelo de mantenimientos
 ├── Services/
-│   └── CarroService.cs          # Servicio para consumir API REST
+│   ├── CarroService.cs                # Servicio API de carros
+│   └── MantenimientoService.cs        # Servicio API de mantenimientos
 ├── Forms/
-│   ├── MainForm.cs              # Formulario principal con menú
-│   ├── CrearCarroForm.cs        # Adicionar nuevo carro
-│   ├── ListarCarrosForm.cs      # Listar todos los carros
-│   ├── BuscarCarroForm.cs       # Buscar carro por placa
-│   ├── ActualizarCarroForm.cs   # Actualizar carro (con búsqueda previa)
-│   └── EliminarCarroForm.cs     # Eliminar carro (con búsqueda previa)
-├── Program.cs                   # Punto de entrada
+│   ├── MainForm.cs                    # Formulario principal con menú
+│   ├── CrearCarroForm.cs              # Adicionar nuevo carro
+│   ├── ListarCarrosForm.cs            # Listar todos los carros
+│   ├── BuscarCarroForm.cs             # Buscar carro por placa
+│   ├── ActualizarCarroForm.cs         # Actualizar carro
+│   ├── EliminarCarroForm.cs           # Eliminar carro
+│   ├── CrearMantenimientoForm.cs      # Crear mantenimiento
+│   ├── ListarMantenimientosForm.cs    # Listar mantenimientos
+│   ├── ActualizarMantenimientoForm.cs # Actualizar mantenimiento
+│   └── EliminarMantenimientoForm.cs   # Eliminar mantenimiento
+├── Program.cs                         # Punto de entrada
 └── EmpresarialesClienteCSharp.csproj
 ```
 
 ## Casos de Uso Implementados
 
+### Módulo de Carros
+
 ### 1. Adicionar Carro
 - Formulario con todos los campos requeridos
-- Validaciones de datos
+- Validaciones de datos (placa, año, precio, etc.)
 - Confirmación de creación exitosa
 
 ### 2. Listar Carros
@@ -66,12 +82,37 @@ EmpresarialesClienteCSharp/
 ### 4. Actualizar Carro
 - **Paso 1:** Búsqueda previa del carro por placa
 - **Paso 2:** Edición de todos los campos
+- Validaciones actualizadas
 - Confirmación de actualización
 
 ### 5. Eliminar Carro
 - **Paso 1:** Búsqueda previa del carro por placa
 - **Paso 2:** Confirmación antes de eliminar
 - Advertencia de acción irreversible
+
+### Módulo de Mantenimientos
+
+### 6. Crear Mantenimiento
+- Formulario completo con validaciones
+- Selección de tipo de mantenimiento
+- Cálculo automático de fecha próximo mantenimiento
+
+### 7. Listar Mantenimientos
+- Vista de tabla con todos los mantenimientos
+- Filtros por placa, tipo, estado
+- Identificación de mantenimientos urgentes
+
+### 8. Actualizar Mantenimiento
+- **Paso 1:** Búsqueda por ID
+- **Paso 2:** Edición de campos
+- Marcar como completado
+
+### 9. Eliminar Mantenimiento
+- **Paso 1:** Búsqueda por ID
+- **Paso 2:** Confirmación de eliminación
+- Advertencia de acción irreversible
+
+**Total:** 9 casos de uso implementados
 
 ## Características
 
@@ -90,13 +131,23 @@ EmpresarialesClienteCSharp/
 
 ## Notas Importantes
 
-1. **Backend debe estar ejecutándose**: El cliente espera que el backend esté disponible en `http://localhost:8080/api/carro`
+1. **Backend debe estar ejecutándose**: El cliente espera que el backend esté disponible en:
+   - `http://localhost:8080/api/carro` (Carros)
+   - `http://localhost:8080/api/mantenimiento` (Mantenimientos)
 
-2. **Actualizar/Eliminar requieren búsqueda previa**: Según los requisitos del proyecto, estos casos de uso primero buscan el objeto y luego permiten la acción
+2. **Autenticación**: Todas las peticiones usan Basic Auth (admin:admin)
 
-3. **Validaciones**: El formulario valida todos los campos antes de enviar al servidor
+3. **Actualizar/Eliminar requieren búsqueda previa**: Según los requisitos del proyecto, estos casos de uso primero buscan el objeto y luego permiten la acción
 
-4. **Manejo de errores**: Todos los errores de conexión o validación se muestran con MessageBox
+4. **Validaciones**: Los formularios validan todos los campos antes de enviar al servidor
+
+5. **Manejo de errores**: Todos los errores de conexión o validación se muestran con MessageBox
+
+6. **Tipos de Mantenimiento**: 
+   - PREVENTIVO, CORRECTIVO, CAMBIO_ACEITE, CAMBIO_LLANTAS
+   - REVISION_FRENOS, ALINEACION_BALANCEO, CAMBIO_BATERIA
+   - REVISION_MOTOR, AIRE_ACONDICIONADO, SUSPENSION
+   - TRANSMISION, SISTEMA_ELECTRICO, PINTURA_CARROCERIA, OTROS
 
 ## Desarrollado por
 - Juan David Reyes

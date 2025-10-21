@@ -5,27 +5,20 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
- * Clase Mantenimiento - Representa el detalle de los mantenimientos de un Carro
- * Relación: Carro (1) <---> (0..*) Mantenimiento
- * Cumple con los requisitos:
- * - int: kilometraje
- * - double: costo
- * - String: id, placaCarro, tipoMantenimiento, descripcion
- * - LocalDateTime: fechaMantenimiento, proximoMantenimiento
- * - boolean: completado
+ * Entidad Mantenimiento
+ * Representa un registro de mantenimiento realizado a un vehículo
+ * Alineado con los clientes React y C# existentes
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Mantenimiento {
 
-    @NotBlank(message = "El ID es obligatorio")
     private String id;
 
     @NotBlank(message = "La placa del carro es obligatoria")
     @Pattern(regexp = "^[A-Z]{3}-[0-9]{3}$", message = "La placa debe tener el formato ABC-123")
-    private String placaCarro; // FK → Carro.placa
+    private String placaCarro;
 
     @NotNull(message = "La fecha de mantenimiento es obligatoria")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -33,16 +26,14 @@ public class Mantenimiento {
 
     @NotNull(message = "El kilometraje es obligatorio")
     @Min(value = 0, message = "El kilometraje debe ser mayor o igual a 0")
-    @Max(value = 1000000, message = "El kilometraje debe ser menor a 1,000,000 km")
+    @Max(value = 1000000, message = "El kilometraje no puede exceder 1,000,000 km")
     private int kilometraje;
 
     @NotBlank(message = "El tipo de mantenimiento es obligatorio")
-    @Pattern(regexp = "PREVENTIVO|CORRECTIVO|REVISION|CAMBIO_ACEITE|CAMBIO_LLANTAS|OTROS",
-             message = "El tipo debe ser: PREVENTIVO, CORRECTIVO, REVISION, CAMBIO_ACEITE, CAMBIO_LLANTAS u OTROS")
     private String tipoMantenimiento;
 
     @NotNull(message = "El costo es obligatorio")
-    @DecimalMin(value = "0.0", inclusive = true, message = "El costo debe ser mayor o igual a 0")
+    @DecimalMin(value = "0.0", inclusive = false, message = "El costo debe ser mayor que 0")
     private double costo;
 
     @NotBlank(message = "La descripción es obligatoria")
@@ -57,18 +48,21 @@ public class Mantenimiento {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime fechaRegistro;
 
+    // Propiedades calculadas (opcionales)
+    private String estadoMantenimiento;
+    private Boolean esUrgente;
+    private Double costoConImpuesto;
+
     // Constructor por defecto
     public Mantenimiento() {
-        this.id = UUID.randomUUID().toString();
         this.fechaRegistro = LocalDateTime.now();
         this.completado = false;
     }
 
-    // Constructor completo
+    // Constructor con parámetros
     public Mantenimiento(String placaCarro, LocalDateTime fechaMantenimiento, int kilometraje,
                         String tipoMantenimiento, double costo, String descripcion,
                         LocalDateTime proximoMantenimiento) {
-        this.id = UUID.randomUUID().toString();
         this.placaCarro = placaCarro;
         this.fechaMantenimiento = fechaMantenimiento;
         this.kilometraje = kilometraje;
@@ -80,27 +74,28 @@ public class Mantenimiento {
         this.fechaRegistro = LocalDateTime.now();
     }
 
-    // Métodos de negocio
-    public boolean esUrgente() {
-        if (proximoMantenimiento == null) {
+    // Método para calcular si es urgente
+    public boolean calcularEsUrgente() {
+        if (proximoMantenimiento == null || completado) {
             return false;
         }
         LocalDateTime ahora = LocalDateTime.now();
-        return proximoMantenimiento.isBefore(ahora.plusDays(7));
+        LocalDateTime limiteUrgente = ahora.plusDays(15);
+        return proximoMantenimiento.isBefore(limiteUrgente);
     }
 
-    public String getEstadoMantenimiento() {
+    // Método para calcular estado
+    public String calcularEstadoMantenimiento() {
         if (completado) {
             return "COMPLETADO";
         }
-        if (esUrgente()) {
+        if (calcularEsUrgente()) {
             return "URGENTE";
         }
+        if (proximoMantenimiento != null && proximoMantenimiento.isBefore(LocalDateTime.now())) {
+            return "VENCIDO";
+        }
         return "PENDIENTE";
-    }
-
-    public double calcularCostoConImpuesto() {
-        return costo * 1.19; // IVA del 19%
     }
 
     // Getters y Setters
@@ -184,6 +179,40 @@ public class Mantenimiento {
         this.fechaRegistro = fechaRegistro;
     }
 
+    public String getEstadoMantenimiento() {
+        if (estadoMantenimiento == null) {
+            estadoMantenimiento = calcularEstadoMantenimiento();
+        }
+        return estadoMantenimiento;
+    }
+
+    public void setEstadoMantenimiento(String estadoMantenimiento) {
+        this.estadoMantenimiento = estadoMantenimiento;
+    }
+
+    public Boolean getEsUrgente() {
+        if (esUrgente == null) {
+            esUrgente = calcularEsUrgente();
+        }
+        return esUrgente;
+    }
+
+    public void setEsUrgente(Boolean esUrgente) {
+        this.esUrgente = esUrgente;
+    }
+
+    public Double getCostoConImpuesto() {
+        if (costoConImpuesto == null) {
+            costoConImpuesto = costo * 1.19; // IVA 19%
+        }
+        return costoConImpuesto;
+    }
+
+    public void setCostoConImpuesto(Double costoConImpuesto) {
+        this.costoConImpuesto = costoConImpuesto;
+    }
+
+    // equals y hashCode
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -197,6 +226,7 @@ public class Mantenimiento {
         return Objects.hash(id);
     }
 
+    // toString
     @Override
     public String toString() {
         return "Mantenimiento{" +

@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import CreateCarro from './pages/CreateCarro';
+import ListCarros from './pages/ListCarros';
 import SearchListCarros from './pages/SearchListCarros';
 import SearchCarro from './pages/SearchCarro';
 import UpdateCarro from './pages/UpdateCarro';
@@ -504,9 +505,11 @@ function App() {
         <main className="flex-1">
           <Routes>
             <Route path="/" element={<HomePage />} />
+            {/* Carros - Casos de uso */}
             <Route path="/carros/create" element={<CreateCarro />} />
-            <Route path="/carros/list" element={<SearchListCarros />} />
+            <Route path="/carros/list" element={<ListCarros />} />
             <Route path="/carros/search" element={<SearchCarro />} />
+            <Route path="/carros/search-list" element={<SearchListCarros />} />
             <Route path="/carros/update" element={<UpdateCarro />} />
             <Route path="/carros/update/:placa" element={<UpdateCarro />} />
             <Route path="/carros/delete" element={<DeleteCarro />} />
@@ -515,6 +518,7 @@ function App() {
             <Route path="/eliminar" element={<DeleteCarro />} />
             <Route path="/actualizar-formulario" element={<ActualizarCarroFormulario />} />
             <Route path="/eliminar-formulario" element={<EliminarCarroFormulario />} />
+            {/* Mantenimientos - Casos de uso */}
             <Route path="/mantenimientos" element={<ListarMantenimientos />} />
             <Route path="/mantenimientos/crear" element={<CrearMantenimiento />} />
             <Route path="/mantenimientos/actualizar/:id" element={<ActualizarMantenimiento />} />
