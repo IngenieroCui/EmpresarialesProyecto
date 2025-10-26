@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -49,7 +50,7 @@ namespace EmpresarialesClienteCSharp.Services
         {
             try
             {
-                var response = await _httpClient.GetAsync($"{BASE_URL}?placa={placa}");
+                var response = await _httpClient.GetAsync($"{BASE_URL}?placa={Uri.EscapeDataString(placa)}");
                 response.EnsureSuccessStatusCode();
                 var content = await response.Content.ReadAsStringAsync();
                 var carros = JsonConvert.DeserializeObject<List<Carro>>(content);
@@ -66,8 +67,60 @@ namespace EmpresarialesClienteCSharp.Services
         {
             try
             {
-                var query = string.Join("&", criterios.Select(kv => $"{kv.Key}={kv.Value}"));
-                var response = await _httpClient.GetAsync($"{BASE_URL}?{query}");
+                if (criterios == null || criterios.Count == 0)
+                {
+                    return await ObtenerTodosLosCarrosAsync();
+                }
+
+                var mappedParams = new Dictionary<string, string>();
+
+                foreach (var kvp in criterios)
+                {
+                    if (string.IsNullOrWhiteSpace(kvp.Value))
+                    {
+                        continue;
+                    }
+
+                    var value = kvp.Value.Trim();
+
+                    switch (kvp.Key)
+                    {
+                        case "tieneAireAcondicionado":
+                            mappedParams["aire_acondicionado"] = value;
+                            break;
+                        case "numeroPuertas":
+                            mappedParams["numero_puertas"] = value;
+                            break;
+                        case "tipoTransmision":
+                            mappedParams["transmision"] = value;
+                            break;
+                        case "precioMin":
+                            mappedParams["precio_min"] = value;
+                            break;
+                        case "precioMax":
+                            mappedParams["precio_max"] = value;
+                            break;
+                        case "fechaDesde":
+                            mappedParams["fechadesde"] = value;
+                            break;
+                        case "fechaHasta":
+                            mappedParams["fechahasta"] = value;
+                            break;
+                        default:
+                            mappedParams[kvp.Key] = value;
+                            break;
+                    }
+                }
+
+                if (mappedParams.Count == 0)
+                {
+                    return await ObtenerTodosLosCarrosAsync();
+                }
+
+                var query = string.Join("&", mappedParams.Select(kv => $"{kv.Key}={Uri.EscapeDataString(kv.Value)}"));
+                var url = string.IsNullOrEmpty(query) ? BASE_URL : $"{BASE_URL}?{query}";
+
+                var response = await _httpClient.GetAsync(url);
                 response.EnsureSuccessStatusCode();
                 var content = await response.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<List<Carro>>(content) ?? new List<Carro>();
