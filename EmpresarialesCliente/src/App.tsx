@@ -228,7 +228,7 @@ const HomePage = () => {
                 </button>
 
                 <button
-                  onClick={() => navigate('/carros/search')}
+                  onClick={() => navigate('/carros/search-list')}
                   className="group bg-white hover:bg-gradient-to-br hover:from-purple-50 hover:to-purple-100 border-2 border-gray-200 hover:border-purple-300 rounded-2xl p-6 transition-all duration-300 hover:shadow-xl"
                 >
                   <div className="flex items-start gap-4">

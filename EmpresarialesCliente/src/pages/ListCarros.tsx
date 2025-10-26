@@ -85,7 +85,7 @@ export default function ListCarros() {
           ➕ Crear Nuevo Carro
         </button>
         <button
-          onClick={() => navigate('/carros/search')}
+          onClick={() => navigate('/carros/search-list')}
           className="btn-secondary"
         >
           🔍 Buscar con Filtros
